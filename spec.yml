@@ -1,0 +1,291 @@
+
+swagger: "2.0"
+info:
+  description: "API para pedidos de comida deliciosa. Como cliente, podras registrarte, ver el listado de nuestros productos y realizar una orden. Los administradores del restaurante tienen la posibilidad de recibir pedidos y actualizarlos"
+  version: "1.0.0"
+  title: "Delilah Resto"
+host: "localhost:5000"
+basePath: "/v1"
+tags:
+- name: "Productos"
+  description: "Endpoints para manejo de los productos"
+- name: "Pedidos"
+  description: "Endpoints para manejo de los pedidos"
+- name: "Usuarios"
+  description: "Endpoints para manejo de los usuarios"  
+  externalDocs:
+    description: "Find out more"
+    url: "http://localhost:5000/"
+schemes:
+- "https"
+- "http"
+paths:
+  /producto:
+    post:
+      tags:
+      - "Productos"
+      summary: "Crear un nuevo producto"
+      description: ""
+      operationId: "AgregarUnProducto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del producto que se va a crear"
+        required: true
+        schema:
+          $ref: "#/definitions/Producto"
+      responses:
+        "400":
+          description: "Objeto con datos no validos"
+        "200":
+          description: "Producto creado"
+        "500":
+          description: "Error interno del servidor"
+    put:
+      tags:
+      - "Productos"
+      summary: "Modificar los datos de un producto"
+      description: "El id del producto es obligatorio para realizar la actualización"
+      operationId: "actualizarProducto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del producto que se va a actualizar"
+        required: true
+        schema:
+          $ref: "#/definitions/Producto"
+      responses:
+        "200":
+          description: "Producto actualizado"
+          schema:
+           $ref: '#/definitions/Producto'
+        "404":
+          description: "Producto no encontrado"
+        "400":
+          description: "Objeto con datos no validos"
+        "500":
+          description: "Error interno del servidor"
+    delete:
+      tags:
+      - "Productos"
+      summary: "Eliminar un producto"
+      description: ""
+      operationId: "EliminarProducto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+        - in: "query"
+          name: "idProducto"
+          required: true
+          type: "integer"
+          description: "Identificador del producto a eliminar"
+      responses:
+        "200":
+          description: "Producto eliminado"
+        "400":
+          description: "Formato de id no valido"
+        "404":
+          description: "Producto no encontrado"
+        "500":
+          description: "Error interno del servidor"
+  /productos:
+    get:
+      tags:
+      - "Productos"
+      summary: "Consultar productos"
+      description: ""
+      operationId: "consultarProductos"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Productos consultados"
+          schema:
+            type: "array"
+            items:
+             $ref: "#/definitions/Producto"
+        "404":
+          description: "Producto no encontrado"
+        "500":
+          description: "Error interno del servidor"
+
+  /pedido:
+    post:
+      tags:
+      - "Pedidos"
+      summary: "Crear un pedido nuevo"
+      description: ""
+      operationId: "AgregarPedido"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del pedido que se va a crear"
+        required: true
+        schema:
+          $ref: "#/definitions/Pedido"
+      responses:
+        "400":
+          description: "Objeto con datos no validos"
+        "200":
+          description: "Pedido creado"
+        "500":
+          description: "Error interno del servidor"
+    put:
+      tags:
+      - "Pedidos"
+      summary: "Modificar los datos de un pedido"
+      description: "El id del pedido es obligatorio para realizar la actualización"
+      operationId: "actualizarPedido"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del pedido que se va a actualizar"
+        required: true
+        schema:
+          $ref: "#/definitions/Pedido"
+      responses:
+        "200":
+          description: "Pedido actualizado"
+          schema:
+           $ref: '#/definitions/Pedido'
+        "404":
+          description: "Pedido no encontrado"
+        "400":
+          description: "Objeto con datos no validos"
+        "500":
+          description: "Error interno del servidor"    
+  /pedidos:
+    get:
+      tags:
+      - "Pedidos"
+      summary: "Consultar pedidos"
+      description: ""
+      operationId: "consultarPedidos"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Pedidos consultados"
+          schema:
+            type: "array"
+            items:
+             $ref: "#/definitions/Pedido"
+        "400":
+          description: "Datos invalidos"     
+        "404":
+          description: "Pedido no encontrado"
+        "500":
+          description: "Error interno del servidor"  
+  /usuario:
+    post:
+      tags:
+      - "Usuarios"
+      summary: "Crear un usuario nuevo"
+      description: ""
+      operationId: "AgregarUsuario"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del usuario que se va a crear"
+        required: true
+        schema:
+          $ref: "#/definitions/Usuario"
+      responses:
+        "400":
+          description: "Objeto con datos no validos"
+        "200":
+          description: "Usuario creado"
+        "500":
+          description: "Error interno del servidor"                 
+definitions:
+  Producto:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      nombrePto:
+        type: "string"
+      precio:
+        type: "integer"
+        format: "int64"
+      nombreCorto:
+        type: "string"
+      favorito:
+        type: "boolean"
+  Pedido:
+    type: "object"
+    properties:
+      idPedido:
+        type: "integer"
+        format: "int64"
+      idProducto:
+        type: "integer"
+        format: "int64"  
+      idEstadoPedido:
+        type: "integer"
+        format: "int64"
+      idUsuario:
+        type: "integer"
+        format: "int64" 
+      horaPedido:
+        type: "string"
+        format: "date-time"
+      descripcionPedido:
+        type: "string"  
+      idMedioDePago:
+        type: "integer"
+        format: "int64"  
+      totalXpagar:   
+        type: "integer"
+        format: "int64" 
+  Usuario:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64" 
+      usuario:
+        type: "string"  
+      nombreCompleto:
+        type: "string" 
+      email:
+        type: "string"
+      telefono:
+        type: "string"        
+      direccionEnvio:
+        type: "string"
+      password:
+        type: "string"
+      idRolUsuario:
+        type: "integer"
+        format: "int64" 
+externalDocs:
+  description: "Find out more DelilahResto"
+  url: "http://localhost:5000/" 
