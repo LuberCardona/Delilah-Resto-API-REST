@@ -4,6 +4,34 @@ var app = express();
 app.use(express.json());
 const port = 5000;
 
+// PRODUCTOS POST
+
+const validarDatosProducto = (req, res, next) => {
+   let {nombrePto, precio, nombreCorto, favorito } = req.body;
+   if (!nombrePto || !precio || !nombreCorto || !favorito) {
+       return res.status(400).json('Datos no validos');
+   }
+   return next();
+}
+
+ app.post('/Producto', validarDatosProducto,(req,res)=>{
+    console.log(req.body);
+     sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
+     {
+        replacements:[req.body.nombrePto,req.body.precio,req.body.nombreCorto,req.body.favorito],
+        type: sequelize.QueryTypes.INSERT
+     }).then(result =>{
+         res.status(200).json(result);
+         console.log(result).json();
+     }).catch(err=>{
+         res.status(500).json(err);
+     })
+ });
+
+ // PRODUCTOS PUT
+
+ 
+
 
 // PRODUCTOS GET
 
