@@ -19,17 +19,17 @@ const validarDatosProducto = (req, res, next) => {
      sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
      {
         replacements:[req.body.nombrePto,req.body.precio,req.body.nombreCorto,req.body.favorito],
-        type: sequelize.QueryTypes.INSERT
-     }).then(result =>{
-         res.status(200).json(result);
-         console.log(result).json();
+        type: sequelize.QueryTypes.INSERT}
+     ).then(result =>{
+         res.send('Producto creado');
+         console.log('Prod creado');
      }).catch(err=>{
          res.status(500).json(err);
      })
  });
 
  
-// Middleware para PUT, DELETE Y GET
+// Middleware para validar tipo de dato id para  PUT, DELETE Y GET
  const validarTipoDatoId = (req, res, next) =>{
     const {id} = req.params;
     console.log(req.params);
@@ -41,18 +41,15 @@ const validarDatosProducto = (req, res, next) => {
 };
 
 // PRODUCTOS PUT
-  app.put('/producto/:id', validarTipoDatoId, (req, res) => {
-    console.log('entra al id en el params' + req.params.id); 
-    sequelize.query ('UPDATE  productos SET nombrePto =?, precio=?, nombreCorto=?, favorito=? WHERE id=?;',   
+  app.put('/producto/:id', validarTipoDatoId, (req, res) => {  
+    sequelize.query ('UPDATE productos SET nombrePto =?, precio=?, nombreCorto=?, favorito=? WHERE id=?;',   
       {replacements:[req.body.nombrePto, req.body.precio, req.body.nombreCorto, req.body.favorito, req.params.id],
       type: sequelize.QueryTypes.UPDATE}              
     ).then(result =>{
         if (result[1] === 0) {
             res.send('El producto no existe ó no se modificó ningun campo');
-            console.log('EL producto no existe =(' );
         }else{
-            res.status(200, 'Producto modificado').json(result);
-            console.log('Producto modificado' + result);                       
+            res.send('Producto modificado');                     
         }
        
     }).catch(err=>{
@@ -61,8 +58,32 @@ const validarDatosProducto = (req, res, next) => {
     
 });
 
- 
+// PRODUCTOS DELETE
 
+app.delete('/producto/:id', validarTipoDatoId, (req, res) => {    
+    const {id} = req.params;   // primero valido si existe con una consulta SELECT 
+    sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
+    {replacements:[req.params.id],
+    type: sequelize.QueryTypes.SELECT} 
+    ).then(result =>{
+        console.log(result);
+        if (result == "") {
+            res.send('El producto no existe')            
+        }else{   // SI EXISTE ENTRA AL DELETE
+            sequelize.query ('DELETE FROM productos WHERE id = ?;',
+            {replacements:[req.params.id],
+            type: sequelize.QueryTypes.DELETE}  
+            ).then(result =>{
+               res.send('El producto ha sido eliminado');       
+            }).catch(err=>{
+                res.status(500).json(err);
+            }) 
+        } 
+    }).catch(err=>{
+        res.status(500).json(err);
+    }) 
+});
+  
 
 // PRODUCTOS GET
 
@@ -78,8 +99,7 @@ app.get('/productos/:id', validarTipoDatoId,(req, res) => {
         }else{
             res.status(200).json(result);
             console.log(result);                       
-        }
-       
+        }       
     }).catch(err=>{
         res.status(500).json(err);
     })    
