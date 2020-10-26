@@ -61,7 +61,7 @@ const validarDatosProducto = (req, res, next) => {
 // PRODUCTOS DELETE
 
 app.delete('/producto/:id', validarTipoDatoId, (req, res) => {    
-    const {id} = req.params;   // primero valido si existe con una consulta SELECT 
+     // primero valido si existe con una consulta SELECT 
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
     type: sequelize.QueryTypes.SELECT} 
