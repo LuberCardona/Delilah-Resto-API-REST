@@ -1,14 +1,12 @@
 const sequelize = require('./dbConex.js');
+const validarToken = require('./validarToken');
 const jwt = require('jsonwebtoken');
-var express = require('express'); 
 
+var express = require('express'); 
 var app = express();              
 app.use(express.json());
+
 const port = 5000;
-
-const SECRET = process.env.SECRET;
-
-
 
 // ENDPOINTS DE USUARIOS
 // USUARIOS POST
@@ -85,32 +83,23 @@ app.post('/login', (req, res)=>{
     })      
 });
 
-// GET - usuarios logueados solo tengan acceso a su información personal
+// GET - usuarios 
 
-// Validar que el token sea verdadero
-
-const validacionToken = (req, res, next)=>{
-    try {
-        const token = req.headers.authorization.split(' ')[1];
-        console.log(token);
-        jwt.verify(token, SECRET);
-        next();
-    } catch (error) {
-        console.log(error);
-        res.status(401).json('Token no válido');
-    }
-}
-
-app.get('/info', validacionToken, (req, res)=>{
-        
+app.get('/info', validarToken.validacionToken, (req, res)=>{        
     const token = req.headers.authorization.split(' ')[1];
     console.log(token);
     const payload = jwt.decode(token);
-    if (payload.rolLogin === 2){ 
-
-    res.status(200).json('info user');
+    if (payload.rolLogin === 1){ 
+        sequelize.query ('SELECT * FROM bddelilahresto.usuarios;',
+        {type: sequelize.QueryTypes.SELECT}
+        ).then(result =>{ 
+            res.status(200).json(result);
+            console.log(result);
+        }).catch(err=>{
+            res.status(500).json(err);
+        })         
     }else{
-        res.status(401).json('usuario no auth');
+        res.status(401).json('Usuario no autorizado para esta consulta');
     }   
         
 })

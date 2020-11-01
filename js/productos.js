@@ -1,8 +1,11 @@
 const sequelize = require('./dbConex.js');
+const validarToken = require('./validarToken');
 const jwt = require('jsonwebtoken');
+
 var express = require('express'); 
 var app = express();              
 app.use(express.json());
+
 const port = 5000;
 
 // PRODUCTOS POST
