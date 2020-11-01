@@ -56,8 +56,7 @@ app.post('/usuario', validacionDatosUsuario, validacionDatoYaExiste, (req, res) 
     })   
 });
 
- // validar usuario y contraseña
-
+ // validar usuario y contraseña y obtener el token
 app.post('/login', (req, res)=>{    
     sequelize.query ('SELECT * FROM bddelilahresto.usuarios WHERE usuario = ? AND password = ?;',
     {replacements:[req.body.usuario, req.body.password],
@@ -72,6 +71,8 @@ app.post('/login', (req, res)=>{
                }
                const token = jwt.sign(payload, SECRET);
                res.status(200).json({ token });
+               console.log(token);
+
             }       
         }
         if (result == '') {
@@ -84,6 +85,35 @@ app.post('/login', (req, res)=>{
     })      
 });
 
+// GET - usuarios logueados solo tengan acceso a su información personal
+
+// Validar que el token sea verdadero
+
+const validacionToken = (req, res, next)=>{
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        console.log(token);
+        jwt.verify(token, SECRET);
+        next();
+    } catch (error) {
+        console.log(error);
+        res.status(401).json('Token no válido');
+    }
+}
+
+app.get('/info', validacionToken, (req, res)=>{
+        
+    const token = req.headers.authorization.split(' ')[1];
+    console.log(token);
+    const payload = jwt.decode(token);
+    if (payload.rolLogin === 2){ 
+
+    res.status(200).json('info user');
+    }else{
+        res.status(401).json('usuario no auth');
+    }   
+        
+})
 
 app.listen(port, function () {     
     console.log('El servidor express corre en el puerto ' + port);

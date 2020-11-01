@@ -1,4 +1,5 @@
 const sequelize = require('./dbConex.js');
+const jwt = require('jsonwebtoken');
 var express = require('express'); 
 var app = express();              
 app.use(express.json());
@@ -87,7 +88,7 @@ app.delete('/producto/:id', validarTipoDatoId, (req, res) => {
 
 // PRODUCTOS GET
 
-app.get('/productos/:id', validarTipoDatoId,(req, res) => {
+/*app.get('/productos/:id', validarTipoDatoId,(req, res) => {
     console.log(req.params.id);    
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
@@ -103,6 +104,41 @@ app.get('/productos/:id', validarTipoDatoId,(req, res) => {
     }).catch(err=>{
         res.status(500).json(err);
     })    
+});*/
+
+// prueba token ###########################################################################
+app.get('/productos',(req, res) => {
+    try{
+        const token = req.headers.authorization.split(' ')[1];
+        console.log(token);
+        const payload = jwt.verify(token, SECRET);
+        console.log(payload);
+       // res.send('ok');
+    }catch (error){
+        res.status(401).json('Token no válido');
+    }
+    
+
+
+
+
+/*
+
+    console.log(req.params.id);    
+    sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
+    {replacements:[req.params.id],
+    type: sequelize.QueryTypes.SELECT}  
+    ).then(result =>{
+        if (result === "") {
+            res.send('El producto no existe =(' );
+            console.log('EL producto no existe =(' );
+        }else{
+            res.status(200).json(result);
+            console.log(result);                       
+        }       
+    }).catch(err=>{
+        res.status(500).json(err);
+    })   */ 
 });
 
 
