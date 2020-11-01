@@ -11,15 +11,7 @@ const port = 5000;
 
 // PRODUCTOS POST
 
-const validarDatosProducto = (req, res, next) => {
-   let {nombrePto, precio, nombreCorto, favorito } = req.body;
-   if (!nombrePto || !precio || !nombreCorto || !favorito) {
-       return res.status(400).json('Datos no validos');
-   }
-   return next();
-}
-
- app.post('/producto', validarDatosProducto, validacion.validacionToken, validacion.validarRol, (req,res)=>{
+ app.post('/producto', validacion.validarDatosProducto, validacion.validacionToken, validacion.validarRol, (req,res)=>{
     
         sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
         {
@@ -34,19 +26,8 @@ const validarDatosProducto = (req, res, next) => {
  });
 
  
-// Middleware para validar tipo de dato id para  PUT, DELETE Y GET
- const validarTipoDatoId = (req, res, next) =>{
-    const {id} = req.params;
-    console.log(req.params);
-    if (id <= 0 || !Number(id)) {
-        res.status(400).json('El id del producto debe ser numerico y mayor de cero');
-    }else{      
-        return next();
-    }
-};
-
 // PRODUCTOS PUT
-  app.put('/producto/:id', validarTipoDatoId,  validacion.validacionToken, validacion.validarRol, (req, res) => { 
+  app.put('/producto/:id', validacion.validarTipoDatoId,  validacion.validacionToken, validacion.validarRol, (req, res) => { 
 
     sequelize.query ('UPDATE productos SET nombrePto =?, precio=?, nombreCorto=?, favorito=? WHERE id=?;',   
       {replacements:[req.body.nombrePto, req.body.precio, req.body.nombreCorto, req.body.favorito, req.params.id],
@@ -66,7 +47,7 @@ const validarDatosProducto = (req, res, next) => {
 
 // PRODUCTOS DELETE
 
-app.delete('/producto/:id', validarTipoDatoId, validacion.validacionToken, validacion.validarRol, (req, res) => {    
+app.delete('/producto/:id', validacion.validarTipoDatoId, validacion.validacionToken, validacion.validarRol, (req, res) => {    
      // primero valido si existe con una consulta SELECT 
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
@@ -93,14 +74,14 @@ app.delete('/producto/:id', validarTipoDatoId, validacion.validacionToken, valid
 
 // PRODUCTOS GET
 
-app.get('/productos/:id', validarTipoDatoId,(req, res) => {
+app.get('/productos/:id', validacion.validarTipoDatoId,(req, res) => {
     console.log(req.params.id);    
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
     type: sequelize.QueryTypes.SELECT}  
-    ).then(result =>{
-        if (result === "") {
-            res.send('El producto no existe =(' );
+    ).then(result =>{        
+        if (result == "") {            
+            res.send('El producto no existe =(' ).json();
             console.log('EL producto no existe =(' );
         }else{
             res.status(200).json(result);
