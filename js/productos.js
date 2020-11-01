@@ -1,6 +1,7 @@
 const sequelize = require('./dbConex.js');
-const validarToken = require('./validarToken');
+const validacion = require('./validacion');
 const jwt = require('jsonwebtoken');
+const SECRET = process.env.SECRET;
 
 var express = require('express'); 
 var app = express();              
@@ -18,18 +19,18 @@ const validarDatosProducto = (req, res, next) => {
    return next();
 }
 
- app.post('/Producto', validarDatosProducto,(req,res)=>{
-    console.log(req.body);
-     sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
-     {
-        replacements:[req.body.nombrePto,req.body.precio,req.body.nombreCorto,req.body.favorito],
-        type: sequelize.QueryTypes.INSERT}
-     ).then(result =>{
-         res.send('Producto creado');
-         console.log('Prod creado');
-     }).catch(err=>{
-         res.status(500).json(err);
-     })
+ app.post('/producto', validarDatosProducto, validacion.validacionToken, validacion.validarRol, (req,res)=>{
+    
+        sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
+        {
+            replacements:[req.body.nombrePto,req.body.precio,req.body.nombreCorto,req.body.favorito],
+            type: sequelize.QueryTypes.INSERT}
+        ).then(result =>{
+            res.send('Producto creado');
+            console.log('Prod creado');
+        }).catch(err=>{
+            res.status(500).json(err);
+        })    
  });
 
  
@@ -45,7 +46,8 @@ const validarDatosProducto = (req, res, next) => {
 };
 
 // PRODUCTOS PUT
-  app.put('/producto/:id', validarTipoDatoId, (req, res) => {  
+  app.put('/producto/:id', validarTipoDatoId,  validacion.validacionToken, validacion.validarRol, (req, res) => { 
+
     sequelize.query ('UPDATE productos SET nombrePto =?, precio=?, nombreCorto=?, favorito=? WHERE id=?;',   
       {replacements:[req.body.nombrePto, req.body.precio, req.body.nombreCorto, req.body.favorito, req.params.id],
       type: sequelize.QueryTypes.UPDATE}              
@@ -64,7 +66,7 @@ const validarDatosProducto = (req, res, next) => {
 
 // PRODUCTOS DELETE
 
-app.delete('/producto/:id', validarTipoDatoId, (req, res) => {    
+app.delete('/producto/:id', validarTipoDatoId, validacion.validacionToken, validacion.validarRol, (req, res) => {    
      // primero valido si existe con una consulta SELECT 
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
@@ -73,7 +75,7 @@ app.delete('/producto/:id', validarTipoDatoId, (req, res) => {
         console.log(result);
         if (result == "") {
             res.send('El producto no existe')            
-        }else{   // SI EXISTE ENTRA AL DELETE
+        }else{   // Si existe entra al esle y hace el delete
             sequelize.query ('DELETE FROM productos WHERE id = ?;',
             {replacements:[req.params.id],
             type: sequelize.QueryTypes.DELETE}  
@@ -91,7 +93,7 @@ app.delete('/producto/:id', validarTipoDatoId, (req, res) => {
 
 // PRODUCTOS GET
 
-/*app.get('/productos/:id', validarTipoDatoId,(req, res) => {
+app.get('/productos/:id', validarTipoDatoId,(req, res) => {
     console.log(req.params.id);    
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
@@ -107,43 +109,7 @@ app.delete('/producto/:id', validarTipoDatoId, (req, res) => {
     }).catch(err=>{
         res.status(500).json(err);
     })    
-});*/
-
-// prueba token ###########################################################################
-app.get('/productos',(req, res) => {
-    try{
-        const token = req.headers.authorization.split(' ')[1];
-        console.log(token);
-        const payload = jwt.verify(token, SECRET);
-        console.log(payload);
-       // res.send('ok');
-    }catch (error){
-        res.status(401).json('Token no válido');
-    }
-    
-
-
-
-
-/*
-
-    console.log(req.params.id);    
-    sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
-    {replacements:[req.params.id],
-    type: sequelize.QueryTypes.SELECT}  
-    ).then(result =>{
-        if (result === "") {
-            res.send('El producto no existe =(' );
-            console.log('EL producto no existe =(' );
-        }else{
-            res.status(200).json(result);
-            console.log(result);                       
-        }       
-    }).catch(err=>{
-        res.status(500).json(err);
-    })   */ 
 });
-
 
 app.listen(port, function () {     
     console.log('El servidor express corre en el puerto ' + port);

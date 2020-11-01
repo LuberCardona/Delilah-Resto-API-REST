@@ -2,6 +2,7 @@
 const sequelize = require('./dbConex.js');
 const validarToken = require('./validarToken');
 const jwt = require('jsonwebtoken');
+const SECRET = process.env.SECRET;
 
 var express = require('express'); 
 var app = express();              

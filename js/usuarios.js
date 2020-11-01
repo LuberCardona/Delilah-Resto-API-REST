@@ -1,12 +1,14 @@
 const sequelize = require('./dbConex.js');
-const validarToken = require('./validarToken');
+const validacion = require('./validacion');
 const jwt = require('jsonwebtoken');
+const SECRET = process.env.SECRET;
 
 var express = require('express'); 
 var app = express();              
 app.use(express.json());
 
 const port = 5000;
+
 
 // ENDPOINTS DE USUARIOS
 // USUARIOS POST
@@ -85,11 +87,8 @@ app.post('/login', (req, res)=>{
 
 // GET - usuarios 
 
-app.get('/info', validarToken.validacionToken, (req, res)=>{        
-    const token = req.headers.authorization.split(' ')[1];
-    console.log(token);
-    const payload = jwt.decode(token);
-    if (payload.rolLogin === 1){ 
+app.get('/info', validacion.validacionToken, validacion.validarRol, (req, res)=>{        
+    
         sequelize.query ('SELECT * FROM bddelilahresto.usuarios;',
         {type: sequelize.QueryTypes.SELECT}
         ).then(result =>{ 
@@ -97,11 +96,7 @@ app.get('/info', validarToken.validacionToken, (req, res)=>{
             console.log(result);
         }).catch(err=>{
             res.status(500).json(err);
-        })         
-    }else{
-        res.status(401).json('Usuario no autorizado para esta consulta');
-    }   
-        
+        })           
 })
 
 app.listen(port, function () {     
