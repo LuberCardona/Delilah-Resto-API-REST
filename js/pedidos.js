@@ -59,21 +59,34 @@ app.delete('/eliminarPedido/:id', validacion.validarTipoDatoIdPedido,validacion.
     })   
 });
 
-
-
-
 // PEDIDOS GET
 
-app.get('/pedidos/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste,(req, res) => {
-    let idConsultado = req.params.id;
-    for (let i = 0; i < pedidos.length; i++) {
-        let pedido = pedidos[i];
-        if (pedido.idPedido == idConsultado) {
-            res.json(pedido);
-        }
-    }
-});
+app.get('/consultarPedidos', validacion.validacionToken, validacion.validarRol,(req, res) => {
 
+    sequelize.query (`SELECT 
+        estado.nombreEstadoPedido as ESTADO,
+        ped.horaPedido as HORA,
+        ped.id as NÚMERO_PEDIDO,
+        prod.nombreCorto as DESCRIPCIÓN,
+        prod.precio as PAGO,
+        usu.nombreCompleto as USUARIO,
+        usu.direccionEnvio as DIRECCIÓN
+
+        FROM bddelilahresto.pedidos as ped
+            JOIN bddelilahresto.productos as prod
+                ON ped.idProducto = prod.id
+            JOIN bddelilahresto.estadospedido as estado
+                ON ped.idEstadoPedido = estado.id
+            JOIN bddelilahresto.usuarios as usu
+                ON ped.idUsuario = usu.id`,
+        {replacements:[req.params.id], type: sequelize.QueryTypes.SELET}  
+        ).then(result =>{
+            res.send(result);   
+            console.log(result);    
+        }).catch(err=>{
+            res.status(500).json(err);
+        })    
+});
 
 app.listen(port, function () {     
     console.log('El servidor express corre en el puerto ' + port);

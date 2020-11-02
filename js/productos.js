@@ -11,7 +11,7 @@ const port = 5000;
 
 // PRODUCTOS POST
 
- app.post('/producto', validacion.validarDatosProducto, validacion.validacionToken, validacion.validarRol, (req,res)=>{
+ app.post('/crearProducto', validacion.validarDatosProducto, validacion.validacionToken, validacion.validarRol, (req,res)=>{
     
         sequelize.query('INSERT INTO `productos`(`nombrePto`,`precio`,`nombreCorto`,`favorito`) VALUES(?,?,?,?);',
         {
@@ -27,7 +27,7 @@ const port = 5000;
 
  
 // PRODUCTOS PUT
-  app.put('/producto/:id', validacion.validarTipoDatoId,  validacion.validacionToken, validacion.validarRol, (req, res) => { 
+  app.put('/modificarProducto/:id', validacion.validarTipoDatoId,  validacion.validacionToken, validacion.validarRol, (req, res) => { 
 
     sequelize.query ('UPDATE productos SET nombrePto =?, precio=?, nombreCorto=?, favorito=? WHERE id=?;',   
       {replacements:[req.body.nombrePto, req.body.precio, req.body.nombreCorto, req.body.favorito, req.params.id],
@@ -47,7 +47,7 @@ const port = 5000;
 
 // PRODUCTOS DELETE
 
-app.delete('/producto/:id', validacion.validarTipoDatoId, validacion.validacionToken, validacion.validarRol, (req, res) => {    
+app.delete('/eliminarProducto/:id', validacion.validarTipoDatoId, validacion.validacionToken, validacion.validarRol, (req, res) => {    
      // primero valido si existe con una consulta SELECT 
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
@@ -72,9 +72,9 @@ app.delete('/producto/:id', validacion.validarTipoDatoId, validacion.validacionT
 });
   
 
-// PRODUCTOS GET
+// PRODUCTOS GET X ID
 
-app.get('/productos/:id', validacion.validarTipoDatoId,(req, res) => {
+app.get('/consultarProducto/:id', validacion.validarTipoDatoId,(req, res) => {
     console.log(req.params.id);    
     sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
     {replacements:[req.params.id],
