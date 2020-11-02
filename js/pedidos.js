@@ -44,6 +44,24 @@ app.put('/modificarPedido/:id', validacion.validarTipoDatoIdPedido,validacion.va
     
 });
 
+// PEDIDOS DELETE
+
+app.delete('/eliminarPedido/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste, validacion.validacionToken, validacion.validarRol, (req, res) => {    
+
+    sequelize.query ('DELETE FROM pedidos WHERE id = ?;',
+        {replacements:[req.params.id],
+        type: sequelize.QueryTypes.DELETE}  
+    ).then(result =>{
+        res.send('El pedido ha sido eliminado');   
+        console.log('pedido eliminado');    
+    }).catch(err=>{
+        res.status(500).json(err);
+    })   
+});
+
+
+
+
 // PEDIDOS GET
 
 app.get('/pedidos/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste,(req, res) => {

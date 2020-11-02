@@ -83,7 +83,7 @@ const validarPedidoExiste = (req, res, next) => {
     ).then(result =>{
       console.log(result);
         if (result == "") {
-            res.send('El producto no existe')
+            res.send('El pedido no existe')
         }else{
             next();
         }
@@ -147,7 +147,7 @@ const validarRol = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         console.log(token);
         const payload = jwt.decode(token);
-        if (payload.rolLogin === 2){ 
+        if (payload.rolLogin === 1){ 
             next();
         }else{
             res.status(401).json('Usuario no autorizado para realizar esta acción');
