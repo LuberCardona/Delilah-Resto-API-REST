@@ -15,14 +15,10 @@ const port = 5000;
 
 // PEDIDOS POST
 
-app.post('/crearPedido',validacion.validarDatosPedido, (req, res) => {
-
-   /* sequelize.query ('INSERT INTO `pedidos` (`horaPedido`, `descripcionPedido`, `idProducto`, `idEstadoPedido`, `idUsuario`,`idMedioDePago`, `totalXPagar`) VALUES (current_timestamp(),"descripcion pedido", "1", "1","1", "1","660");',*/
-
-   sequelize.query ('INSERT INTO `pedidos` (`horaPedido`, `descripcionPedido`, `idProducto`, `idEstadoPedido`, `idUsuario`,`idMedioDePago`, `totalXPagar`) VALUES (current_timestamp(),?,?,?,?,?,?);',
+app.post('/crearPedido',validacion.validarDatosPedido, validacion.validarIdForaneos, (req, res) => {
+   sequelize.query ('INSERT INTO `pedidos`(`horaPedido`, `idProducto`, `idEstadoPedido`, `idUsuario`,`idMedioDePago`) VALUES (current_timestamp(),?,?,?,?);',
         {
-        replacements:[req.body.descripcionPedido,req.body.idProducto,req.body.idEstadoPedido,
-                      req.body.idUsuario,req.body.idMedioDePago,req.body.totalXpagar],
+        replacements:[req.body.idProducto,req.body.idEstadoPedido,req.body.idUsuario,req.body.idMedioDePago],
         type: sequelize.QueryTypes.INSERT}
         ).then(result =>{
             res.send('Pedido creado');
@@ -34,34 +30,23 @@ app.post('/crearPedido',validacion.validarDatosPedido, (req, res) => {
 
 
 // PEDIDOS PUT
-app.put('/pedido', (req, res) => {
-    let modificarPedido = req.params;             
-    res.send(modificarPedido);
+app.put('/modificarPedido/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste, validacion.validacionToken, validacion.validarRol,(req, res) => {
+
+    sequelize.query ('UPDATE pedidos SET idEstadoPedido=? WHERE id=?;',   
+      {replacements:[req.body.idEstadoPedido, req.params.id],
+      type: sequelize.QueryTypes.UPDATE}              
+    ).then(result =>{
+        res.send('Estado del pedido modificado'); 
+        console.log('Estado del pedido modificado');
+    }).catch(err=>{
+        res.status(500).json(err);
+    })  
     
 });
 
 // PEDIDOS GET
 
-const validarTipoDatoIdPedido = (req, res, next) =>{
-    const {id} = req.params;
-    if (id > 0 || Number(id)) {
-        return next();
-    }else{
-        res.status(400).json('El id del pedido debe ser numerico y mayor de cero');
-    }
-};
-const validarPedidoExiste = (req, res, next) => {
-    const {id} = req.params;    
-    const i = pedidos.findIndex(listapedidos => {
-        return listapedidos.idPedido == id;
-    });   
-    if (i <= 0) {
-        return res.status(404).json('El pedido no existe');
-    }
-    return next();
-};
-
-app.get('/pedidos/:id', validarTipoDatoIdPedido,validarPedidoExiste,(req, res) => {
+app.get('/pedidos/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste,(req, res) => {
     let idConsultado = req.params.id;
     for (let i = 0; i < pedidos.length; i++) {
         let pedido = pedidos[i];

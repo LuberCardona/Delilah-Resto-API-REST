@@ -25,15 +25,76 @@ const validarTipoDatoId = (req, res, next) =>{
 };
 // datos en body PEDIDO
 const validarDatosPedido = (req, res, next) => {
-    const {idProducto, idEstadoPedido, idUsuario, descripcionPedido, idMedioDePago, totalXpagar} = req.body;   
-    if (!idProducto || !idEstadoPedido || !idUsuario  ||!descripcionPedido ||!idMedioDePago || !totalXpagar)
+    const {idProducto, idEstadoPedido, idUsuario, idMedioDePago} = req.body;   
+    if (!idProducto || !idEstadoPedido || !idUsuario ||!idMedioDePago)
         return res.status(400).json('datos invalidos');      
     if(idEstadoPedido < 1 || idEstadoPedido > 6)
-        return res.send("ingrese un numero del 1 al 6");     
+        return res.send("ingrese un numero del 1 al 6 , 1 NUEVO , 2 CONFIRMADO, 3 PREPARANDO, 4 ENVIANDO, 5 CANCELADO, 6 ENTREGADO");     
     if (idMedioDePago !== 1 && idMedioDePago !== 2 )
         return res.send('Ingrese 1 para pago con EFECTIVO ó 2 para pago con TARJETA');              
     return next();
 }
+// tipo de dato id pedidos en params
+const validarTipoDatoIdPedido = (req, res, next) =>{
+    const {id} = req.params;
+    if (id > 0 || Number(id)) {
+        return next();
+    }else{
+        res.status(400).json('El id del pedido debe ser numerico y mayor de cero');
+    }
+};
+
+// validar si los id del producto y el usuario existen para la descripcion del pedido y direccion de envio.
+const validarIdForaneos = (req, res, next) => {
+    sequelize.query('SELECT * FROM bddelilahresto.productos WHERE id = ?;',
+    {replacements:[req.body.idProducto],
+         type: sequelize.QueryTypes.SELECT} 
+    ).then(result =>{
+      console.log(result);
+        if (result == "") {
+            res.send('El id del producto a anexar al pedido no existe')
+        } 
+    }).catch(err=>{
+        res.status(500).json(err);
+    }) 
+
+    sequelize.query('SELECT * FROM bddelilahresto.usuarios WHERE id = ?;',
+        {replacements:[req.body.idUsuario],
+             type: sequelize.QueryTypes.SELECT} 
+        ).then(result =>{
+          console.log(result);
+            if (result == "") {
+                res.send('Por favor asignar un cliente existente para el envio del pedido')
+            }
+            next();
+        }).catch(err=>{
+            res.status(500).json(err);
+        })
+
+};
+
+
+
+
+// validar si el pedido existe
+const validarPedidoExiste = (req, res, next) => {
+    sequelize.query('SELECT * FROM bddelilahresto.pedidos WHERE id = ?;',
+       {replacements:[req.params.id], type: sequelize.QueryTypes.SELECT} 
+    ).then(result =>{
+      console.log(result);
+        if (result == "") {
+            res.send('El producto no existe')
+        }else{
+            next();
+        }
+    }).catch(err=>{
+        res.status(500).json(err);
+    }) 
+
+};
+
+
+
 
 //validacion datos ingresados al body  - USUARIOS
 const validacionDatosUsuario = (req, res, next) => {
@@ -86,7 +147,7 @@ const validarRol = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         console.log(token);
         const payload = jwt.decode(token);
-        if (payload.rolLogin === 1){ 
+        if (payload.rolLogin === 2){ 
             next();
         }else{
             res.status(401).json('Usuario no autorizado para realizar esta acción');
@@ -100,10 +161,12 @@ module.exports = {
     validarDatosProducto,   
     validarTipoDatoId,
     validarDatosPedido,
+    validarTipoDatoIdPedido,
+    validarIdForaneos,
+    validarPedidoExiste,
     validacionDatosUsuario,
     validacionDatoYaExiste,
     validacionToken,
-    validarRol
-    
+    validarRol    
 }
 

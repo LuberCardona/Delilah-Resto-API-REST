@@ -60,12 +60,10 @@ CREATE TABLE IF NOT EXISTS `bddelilahresto`.`usuarios` (
 CREATE TABLE IF NOT EXISTS `bddelilahresto`.`pedidos` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `horaPedido` TIMESTAMP NOT NULL,
-  `descripcionPedido` VARCHAR(255) NOT NULL,
   `idProducto` INT NOT NULL,
   `idEstadoPedido` INT NOT NULL,
   `idUsuario` INT NOT NULL,
   `idMedioDePago` INT NOT NULL,
-  `totalXPagar` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk PedidosUsuarios_idx` (`idUsuario` ASC) VISIBLE,
   INDEX `fk PedidosProductos_idx` (`idProducto` ASC) VISIBLE,
@@ -186,20 +184,16 @@ INSERT INTO `bddelilahresto`.`productos`
 INSERT INTO `bddelilahresto`.`pedidos`
   (`id`,
     `horaPedido`,
-    `descripcionPedido`,
     `idProducto`,
     `idEstadoPedido`,
     `idUsuario`,
-    `idMedioDePago`,
-    `totalXPagar`
+    `idMedioDePago`
     )
     VALUES
     (NULL,
     current_timestamp(),
-    "descripcion pedido",
     "1",
     "1",
     "1",
-    "1",
-    "660"
+    "1"
   );
