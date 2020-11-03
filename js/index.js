@@ -106,7 +106,6 @@ app.get('/consultarProducto/:id', validacion.validarTipoDatoId, (req, res) => {
     })    
 });
 
-
 // ENDPOINTS DE USUARIOS  POST crear, POST login y GET ///////////////////////////////////////////////////////////
 
 // USUARIOS POST
@@ -149,7 +148,7 @@ app.post('/login', (req, res)=>{
 });
 
 // GET - usuarios 
-app.get('/info', validacion.validacionToken, validacion.validarRol, (req, res)=>{        
+app.get('/infoUsuarios', validacion.validacionToken, validacion.validarRol, (req, res)=>{        
     
         sequelize.query ('SELECT * FROM bddelilahresto.usuarios;',
         {type: sequelize.QueryTypes.SELECT}
@@ -160,6 +159,7 @@ app.get('/info', validacion.validacionToken, validacion.validarRol, (req, res)=>
             res.status(500).json(err);
         })           
 })
+
 
 // ENDPOINTS PEDIDOS  POST, PUR, DELETE Y GET//////////////////////////////////////////////////////////////
 

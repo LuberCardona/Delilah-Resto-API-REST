@@ -1,7 +1,7 @@
 
 swagger: "2.0"
 info:
-  description: "API para pedidos de comida deliciosa. Como cliente, podras registrarte, ver el listado de nuestros productos y realizar una orden. Los administradores del restaurante tienen la posibilidad de recibir pedidos y actualizarlos"
+  description: "API para pedidos de comida. Como cliente, podras registrarte, ver el listado de nuestros productos y realizar una orden. Los administradores del restaurante tienen la posibilidad  de crear, editar o eliminar un producto, tambien podran actualizar el estado de un pedido o eliminar el pedido"
   version: "1.0.0"
   title: "Delilah Resto"
 host: "localhost:5000"
@@ -17,45 +17,53 @@ tags:
     description: "Find out more"
     url: "http://localhost:5000/"
 schemes:
-- "https"
 - "http"
 paths:
-  /producto:
+  /crearProducto:
     post:
       tags:
       - "Productos"
       summary: "Crear un nuevo producto"
-      description: ""
+      description: "Token requerido para esta accion, se debe incluir en Authorization o en los headers en postman"
       operationId: "AgregarUnProducto"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Objeto con los datos del producto que se va a crear"
+      - name: "Bearer token"
+        in: "header"   
         required: true
+        type: "string"  
+      - name: "body"
+        in: "body"   
+        required: true  
+        description: "Objeto con los datos del producto que se va a crear"        
         schema:
           $ref: "#/definitions/Producto"
       responses:
         "400":
-          description: "Objeto con datos no validos"
+          description: "datos no validos"
         "200":
           description: "Producto creado"
         "500":
           description: "Error interno del servidor"
+  /modificarProducto/:        
     put:
       tags:
       - "Productos"
       summary: "Modificar los datos de un producto"
-      description: "El id del producto es obligatorio para realizar la actualización"
+      description: "El id del producto es obligatorio para realizar la actualización y el Token es requerido para esta accion, se debe incluir en Authorization o en los headers en postman"
       operationId: "actualizarProducto"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
+      - name: "Bearer token"
+        in: "header"   
+        required: true
+        type: "string" 
       - in: "body"
         name: "body"
         description: "Objeto con los datos del producto que se va a actualizar"
@@ -64,31 +72,36 @@ paths:
           $ref: "#/definitions/Producto"
       responses:
         "200":
-          description: "Producto actualizado"
+          description: "Producto modificado"
           schema:
            $ref: '#/definitions/Producto'
         "404":
-          description: "Producto no encontrado"
+          description: "producto no encontrado"
         "400":
-          description: "Objeto con datos no validos"
+          description: "datos no validos"
         "500":
           description: "Error interno del servidor"
+  /eliminarProducto/:        
     delete:
       tags:
       - "Productos"
       summary: "Eliminar un producto"
-      description: ""
+      description: "El id del producto es obligatorio para realizar la actualización y el Token es requerido para esta accion, se debe incluir en Authorization o en los headers en postman"
       operationId: "EliminarProducto"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-        - in: "query"
-          name: "idProducto"
-          required: true
-          type: "integer"
-          description: "Identificador del producto a eliminar"
+      - name: "Bearer token"
+        in: "header"   
+        required: true
+        type: "string"
+      - name: "id"
+        in: "query"
+        required: true
+        type: "integer"
+        description: "Identificador del producto a eliminar"
       responses:
         "200":
           description: "Producto eliminado"
@@ -98,11 +111,11 @@ paths:
           description: "Producto no encontrado"
         "500":
           description: "Error interno del servidor"
-  /productos:
+  /consultarProductos:
     get:
       tags:
       - "Productos"
-      summary: "Consultar productos"
+      summary: "Consultar todos los productos"
       description: ""
       operationId: "consultarProductos"
       consumes:
@@ -117,11 +130,32 @@ paths:
             items:
              $ref: "#/definitions/Producto"
         "404":
-          description: "Producto no encontrado"
+          description: "Productos no encontrados"
         "500":
           description: "Error interno del servidor"
-
-  /pedido:
+  /consultarProducto/:
+    get:
+      tags:
+      - "Productos"
+      summary: "Consultar un solo producto por id"
+      description: "El id del producto es obligatorio para realizar esta consulta"
+      operationId: "consultarUnProducto"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Producto consultado"
+          schema:
+            type: "array"
+            items:
+             $ref: "#/definitions/Producto"
+        "404":
+          description: "Producto no encontrado"
+        "500":
+          description: "Error interno del servidor"      
+  /crearPedido:
     post:
       tags:
       - "Pedidos"
@@ -141,28 +175,33 @@ paths:
           $ref: "#/definitions/Pedido"
       responses:
         "400":
-          description: "Objeto con datos no validos"
+          description: "datos no validos"
         "200":
           description: "Pedido creado"
         "500":
           description: "Error interno del servidor"
+  /modificarPedido/:        
     put:
       tags:
       - "Pedidos"
-      summary: "Modificar los datos de un pedido"
-      description: "El id del pedido es obligatorio para realizar la actualización"
+      summary: "Modificar el estado de un pedido"
+      description: "El id del pedido es obligatorio para realizar la actualización y el Token es requerido para esta accion, se debe incluir en Authorization o en los headers en postman"
       operationId: "actualizarPedido"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
+      - name: "Bearer token"
+        in: "header"   
+        required: true
+        type: "string"
       - in: "body"
         name: "body"
         description: "Objeto con los datos del pedido que se va a actualizar"
         required: true
         schema:
-          $ref: "#/definitions/Pedido"
+          $ref: "#/definitions/modificarPedido"
       responses:
         "200":
           description: "Pedido actualizado"
@@ -171,34 +210,69 @@ paths:
         "404":
           description: "Pedido no encontrado"
         "400":
-          description: "Objeto con datos no validos"
+          description: "datos no validos"
         "500":
-          description: "Error interno del servidor"    
-  /pedidos:
+          description: "Error interno del servidor"   
+  /eliminarPedido/:        
+    delete:
+      tags:
+      - "Pedidos"
+      summary: "Eliminar un pedido"
+      description: "El id del producto es obligatorio para realizar esta accion y el Token es requerido, éste se debe incluir en Authorization o en los headers en postman"
+      operationId: "EliminarPedido"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Bearer token"
+        in: "header"   
+        required: true
+        type: "string"
+      - name: "id"
+        in: "query"
+        required: true
+        type: "integer"
+        description: "Identificador del pedido a eliminar"
+      responses:
+        "200":
+          description: "Pedido eliminado"
+        "400":
+          description: "Formato de id no valido"
+        "404":
+          description: "Pedido no encontrado"
+        "500":
+          description: "Error interno del servidor"         
+  /consultarPedidos:
     get:
       tags:
       - "Pedidos"
       summary: "Consultar pedidos"
-      description: ""
+      description: "El Token es requerido, éste se debe incluir en Authorization o en los headers en postman"
       operationId: "consultarPedidos"
       consumes:
       - "application/json"
       produces:
       - "application/json"
+      parameters:
+      - name: "Bearer token"
+        in: "header"   
+        required: true
+        type: "string"
       responses:
         "200":
           description: "Pedidos consultados"
           schema:
             type: "array"
             items:
-             $ref: "#/definitions/Pedido"
+             $ref: "#/definitions/pedidoConsultado"
         "400":
           description: "Datos invalidos"     
         "404":
           description: "Pedido no encontrado"
         "500":
           description: "Error interno del servidor"  
-  /usuario:
+  /crearUsuario:
     post:
       tags:
       - "Usuarios"
@@ -223,11 +297,39 @@ paths:
           description: "Usuario creado"
         "500":
           description: "Error interno del servidor"   
+  /loginUsuario:
+    post:
+      tags:
+      - "Usuarios"
+      summary: "login de usuario"
+      description: ""
+      operationId: "loginUsuario"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Objeto con los datos del usuario que se va a loguear"
+        required: true
+        schema:
+          $ref: "#/definitions/loginUsuario"
+      responses:
+        "400":
+          description: "datos no validos"
+        "401":
+          description: "usuario o contraseña invalidos"  
+        "200":
+          description: "acceso autorizado + generacion de token"
+        "500":
+          description: "Error interno del servidor"  
+  /infoUsuarios:               
     get:
        tags:
        - "Usuarios"
        summary: "Consultar usuarios"
-       description: ""
+       description: El Token es requerido, éste se debe incluir en Authorization o en los headers en postman"
        operationId: "consultarUsuarios"
        consumes:
        - "application/json"
@@ -250,9 +352,6 @@ definitions:
   Producto:
     type: "object"
     properties:
-      id:
-        type: "integer"
-        format: "int64"
       nombrePto:
         type: "string"
       precio:
@@ -261,13 +360,11 @@ definitions:
       nombreCorto:
         type: "string"
       favorito:
-        type: "boolean"
+        type: "integer"
+        format: "int64"
   Pedido:
     type: "object"
     properties:
-      idPedido:
-        type: "integer"
-        format: "int64"
       idProducto:
         type: "integer"
         format: "int64"  
@@ -277,23 +374,41 @@ definitions:
       idUsuario:
         type: "integer"
         format: "int64" 
-      horaPedido:
-        type: "string"
-        format: "date-time"
-      descripcionPedido:
-        type: "string"  
       idMedioDePago:
         type: "integer"
         format: "int64"  
-      totalXpagar:   
+  modificarPedido:
+    type: "object"
+    properties:
+      idEstadoPedido:
         type: "integer"
         format: "int64" 
+  pedidoConsultado:
+    type: "object"
+    properties:
+      ESTADO:
+        type: "string"
+      HORA:
+        type: "string"
+        format: "date-time"   
+      NUMERO_PEDIDO:  
+        type: "integer"
+        format: "int64" 
+      DESCRIPCION:
+        type: "string"  
+      PAGO:
+        type: "integer"
+        format: "int64"
+      MEDIO_DE_PAGO:  
+        type: "string"
+      USUARIO:
+        type: "string"
+      DIRECCION:
+        type: "string"    
+
   Usuario:
     type: "object"
     properties:
-      id:
-        type: "integer"
-        format: "int64" 
       usuario:
         type: "string"  
       nombreCompleto:
@@ -309,6 +424,16 @@ definitions:
       idRolUsuario:
         type: "integer"
         format: "int64" 
+  loginUsuario:
+    type: "object"
+    properties:
+      usuario:
+        type: "string" 
+      password:
+        type: "string"
+      idRolUsuario:
+        type: "integer"
+        format: "int64"       
 externalDocs:
   description: "Find out more DelilahResto"
   url: "http://localhost:5000/" 
