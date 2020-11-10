@@ -121,7 +121,7 @@ app.post('/crearUsuario', validacion.validacionDatosUsuario, validacion.validaci
 });
 
  // USUARIOS LOGIN -  validar usuario y contraseña y obtener el token
-app.post('/login', (req, res)=>{    
+app.post('/loginUsuario', (req, res)=>{    
     sequelize.query ('SELECT * FROM bddelilahresto.usuarios WHERE usuario = ? AND password = ?;',
     {replacements:[req.body.usuario, req.body.password],
     type: sequelize.QueryTypes.SELECT}

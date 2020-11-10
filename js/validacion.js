@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET;
 
 
-// Datos PRODUCTOS 
+// Datos PRODUCTOS en el body de la peticion
 const validarDatosProducto = (req, res, next) => {
     let {nombrePto, precio, nombreCorto, favorito } = req.body;
     if (!nombrePto || !precio || !nombreCorto || !favorito) {
@@ -76,7 +76,7 @@ const validarIdForaneos = (req, res, next) => {
 
 
 
-// validar si el pedido existe
+// validar si el pedido existe para eliminarlo o editarlo
 const validarPedidoExiste = (req, res, next) => {
     sequelize.query('SELECT * FROM bddelilahresto.pedidos WHERE id = ?;',
        {replacements:[req.params.id], type: sequelize.QueryTypes.SELECT} 
