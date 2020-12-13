@@ -362,21 +362,28 @@ definitions:
       favorito:
         type: "integer"
         format: "int64"
+  Detalleproductos:
+      type: "object"
+      properties:
+        id_producto:
+          type: "integer"
+          format: "int64"      
   Pedido:
     type: "object"
-    properties:
-      idProducto:
-        type: "integer"
-        format: "int64"  
-      idEstadoPedido:
-        type: "integer"
-        format: "int64"
+    properties: 
       idUsuario:
         type: "integer"
-        format: "int64" 
+        format: "int64"
       idMedioDePago:
         type: "integer"
-        format: "int64"  
+        format: "int64" 
+      productos:
+        type: "array"
+        xml:
+          name: "product"
+          wrapped: true
+        items:
+          $ref: '#/definitions/Detalleproductos'   
   modificarPedido:
     type: "object"
     properties:
@@ -388,24 +395,21 @@ definitions:
     properties:
       ESTADO:
         type: "string"
-      HORA:
-        type: "string"
-        format: "date-time"   
       NUMERO_PEDIDO:  
+        type: "integer"
+        format: "int64"  
+      USUARIO:
+        type: "string"  
+      MEDIO_DE_PAGO:  
+        type: "string" 
+      PAGO_TOTAL:
         type: "integer"
         format: "int64" 
       DESCRIPCION:
-        type: "string"  
-      PAGO:
-        type: "integer"
-        format: "int64"
-      MEDIO_DE_PAGO:  
+        type: "string"     
+      HORA_PEDIDO:
         type: "string"
-      USUARIO:
-        type: "string"
-      DIRECCION:
-        type: "string"    
-
+        format: "date-time"   
   Usuario:
     type: "object"
     properties:

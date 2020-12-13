@@ -34,6 +34,8 @@ const validarDatosPedido = (req, res, next) => {
         return res.send('Ingrese 1 para pago con EFECTIVO ó 2 para pago con TARJETA');              
     return next();
 }
+
+
 // tipo de dato id pedidos en params
 const validarTipoDatoIdPedido = (req, res, next) =>{
     const {id} = req.params;

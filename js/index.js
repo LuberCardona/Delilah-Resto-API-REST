@@ -2,6 +2,7 @@ const sequelize = require('./dbConex.js');
 const validacion = require('./validacion');
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET;
+const queryPedidos = require('./pedidos.js');
 
 var express = require('express'); 
 var app = express();              
@@ -163,19 +164,27 @@ app.get('/infoUsuarios', validacion.validacionToken, validacion.validarRol, (req
 
 // ENDPOINTS PEDIDOS  POST, PUR, DELETE Y GET//////////////////////////////////////////////////////////////
 
-// PEDIDOS POST
-app.post('/crearPedido',validacion.validarDatosPedido, validacion.validarIdForaneos, (req, res) => {
-    sequelize.query ('INSERT INTO `pedidos`(`horaPedido`, `idProducto`, `idEstadoPedido`, `idUsuario`,`idMedioDePago`) VALUES (current_timestamp(),?,?,?,?);',
-         {
-         replacements:[req.body.idProducto,req.body.idEstadoPedido,req.body.idUsuario,req.body.idMedioDePago],
-         type: sequelize.QueryTypes.INSERT}
-         ).then(result =>{
-             res.send('Pedido creado');
-             console.log('Pedido creado');
-         }).catch(err=>{
-             res.status(500).json(err);
-         }) 
- });
+
+ app.post('/crearPedido', validacion.validacionToken, async(req,res)=>{
+    try{
+        const ValidarProductos = await queryPedidos.validarProductosDetalles(req.body.productos);
+        //Si no existe un producto reportar error
+        if (ValidarProductos && ValidarProductos.error)
+        return res
+          .status(400)
+          .json({ error: 400, errorDetalle: ValidarProductos.error });
+          //console.log('admin id: ' + req.body.id);
+        const crearPedido = await queryPedidos.CrearPedido(req.body.idUsuario,req.body.idMedioDePago);
+        //console.log('id del pedido: ' + crearPedido[0]);
+        await queryPedidos.crearDetalleOrden(crearPedido[0],req.body.productos);
+        res.json(req.body);
+    }  catch (error) {
+    res.status(500).json({ error: error.message });
+    }
+});
+
+
+ 
  
  
  // PEDIDOS PUT
@@ -211,24 +220,26 @@ app.post('/crearPedido',validacion.validarDatosPedido, validacion.validarIdForan
  app.get('/consultarPedidos', validacion.validacionToken, validacion.validarRol,(req, res) => {
  
      sequelize.query (`SELECT 
-         estado.nombreEstadoPedido as ESTADO,
-         ped.horaPedido as HORA,
-         ped.id as NÚMERO_PEDIDO,
-         prod.nombreCorto as DESCRIPCIÓN,
-         prod.precio as PAGO,
-         medPag.nombreMedioDePago as MEDIO_DE_PAGO,
-         usu.nombreCompleto as USUARIO,
-         usu.direccionEnvio as DIRECCIÓN
- 
-         FROM bddelilahresto.pedidos as ped
-             JOIN bddelilahresto.productos as prod
-                 ON ped.idProducto = prod.id
-             JOIN bddelilahresto.estadospedido as estado
-                 ON ped.idEstadoPedido = estado.id
-             JOIN bddelilahresto.mediosdepago as medPag
-                 ON ped.idMedioDePago = medPag.id
-             JOIN bddelilahresto.usuarios as usu
-                 ON ped.idUsuario = usu.id`,
+     E.nombreEstadoPedido AS ESTADO,
+     P.id AS NUMERO_PEDIDO
+     ,U.nombreCompleto AS USUARIO
+     ,TP.nombreMedioDePago AS MEDIO_DE_PAGO
+     ,(Select sum(precio)
+     from bddelilahresto.detalles_pedidos ped
+     join bddelilahresto.productos prod
+     on ped.id_producto = prod.id
+     where  id_pedido = P.id) AS PAGO_TOTAL
+     ,(Select  group_concat(prod.nombreCorto)
+     from bddelilahresto.detalles_pedidos ped
+     join bddelilahresto.productos prod
+     on ped.id_producto = prod.id
+     where  id_pedido = P.id
+     group by id_pedido) AS DESCRIPCION
+     ,P.horaPedido AS HORA_PEDIDO
+     FROM bddelilahresto.pedidos P
+     JOIN bddelilahresto.usuarios U on P.idUsuario =  U.id
+     JOIN bddelilahresto.mediosdepago TP on p.idMedioDePago = TP.id
+     JOIN bddelilahresto.estadospedido E on p.idEstadoPedido = E.id;`,
          {type: sequelize.QueryTypes.SELET}  
          ).then(result =>{
              res.send(result);   

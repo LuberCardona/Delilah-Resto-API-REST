@@ -1,4 +1,3 @@
-
 CREATE SCHEMA `bddelilahresto` ;
 
 -- -----------------------------------------------------
@@ -60,13 +59,11 @@ CREATE TABLE IF NOT EXISTS `bddelilahresto`.`usuarios` (
 CREATE TABLE IF NOT EXISTS `bddelilahresto`.`pedidos` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `horaPedido` TIMESTAMP NOT NULL,
-  `idProducto` INT NOT NULL,
   `idEstadoPedido` INT NOT NULL,
   `idUsuario` INT NOT NULL,
   `idMedioDePago` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk PedidosUsuarios_idx` (`idUsuario` ASC) VISIBLE,
-  INDEX `fk PedidosProductos_idx` (`idProducto` ASC) VISIBLE,
   INDEX `fk PedidosEstado_idx` (`idEstadoPedido` ASC) VISIBLE,
   INDEX `fk PedidosMedioPago_idx` (`idMedioDePago` ASC) VISIBLE,
   CONSTRAINT `fk_ Pedidos_Estados`
@@ -74,10 +71,7 @@ CREATE TABLE IF NOT EXISTS `bddelilahresto`.`pedidos` (
     REFERENCES `bddelilahresto`.`estadospedido` (`id`),
   CONSTRAINT `fk_Pedidos_MediosPago`
     FOREIGN KEY (`idMedioDePago`)
-    REFERENCES `bddelilahresto`.`mediosdepago` (`id`),
-  CONSTRAINT `fk_Pedidos_Productos`
-    FOREIGN KEY (`idProducto`)
-    REFERENCES `bddelilahresto`.`productos` (`id`),
+    REFERENCES `bddelilahresto`.`mediosdepago` (`id`),  
   CONSTRAINT `fk_Pedidos_Usuarios`
     FOREIGN KEY (`idUsuario`)
     REFERENCES `bddelilahresto`.`usuarios` (`id`));
@@ -184,7 +178,6 @@ INSERT INTO `bddelilahresto`.`productos`
 INSERT INTO `bddelilahresto`.`pedidos`
   (`id`,
     `horaPedido`,
-    `idProducto`,
     `idEstadoPedido`,
     `idUsuario`,
     `idMedioDePago`
@@ -194,6 +187,27 @@ INSERT INTO `bddelilahresto`.`pedidos`
     current_timestamp(),
     "1",
     "1",
-    "1",
     "1"
   );
+
+CREATE TABLE `bddelilahresto`.`detalles_pedidos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `id_producto` INT NOT NULL,
+  `id_pedido` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_detalle_pedido_idx` (`id_pedido` ASC) VISIBLE,
+  INDEX `fk_detalle_producto_idx` (`id_producto` ASC) VISIBLE,
+  CONSTRAINT `fk_detalle_pedido`
+    FOREIGN KEY (`id_pedido`)
+    REFERENCES `bddelilahresto`.`pedidos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_detalle_producto`
+    FOREIGN KEY (`id_producto`)
+    REFERENCES `bddelilahresto`.`productos` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+INSERT INTO `bddelilahresto`.`detalles_pedidos`
+(`id_producto`,`id_pedido`)
+VALUES(1,1)
