@@ -185,8 +185,6 @@ app.get('/infoUsuarios', validacion.validacionToken, validacion.validarRol, (req
 
 
  
- 
- 
  // PEDIDOS PUT
  app.put('/modificarPedido/:id', validacion.validarTipoDatoIdPedido,validacion.validarPedidoExiste, validacion.validacionToken, validacion.validarRol,(req, res) => {
  
@@ -224,22 +222,28 @@ app.get('/infoUsuarios', validacion.validacionToken, validacion.validarRol, (req
      P.id AS NUMERO_PEDIDO
      ,U.nombreCompleto AS USUARIO
      ,TP.nombreMedioDePago AS MEDIO_DE_PAGO
-     ,(Select sum(precio)
+     ,(Select  sum((precio) * (Cantidad))
      from bddelilahresto.detalles_pedidos ped
      join bddelilahresto.productos prod
      on ped.id_producto = prod.id
      where  id_pedido = P.id) AS PAGO_TOTAL
-     ,(Select  group_concat(prod.nombreCorto)
+     
+     ,(Select  group_concat(prod.nombreCorto, " X ", Cantidad)
      from bddelilahresto.detalles_pedidos ped
      join bddelilahresto.productos prod
-     on ped.id_producto = prod.id
+          on ped.id_producto = prod.id
      where  id_pedido = P.id
-     group by id_pedido) AS DESCRIPCION
+     group by id_pedido) AS DESCRIPCION  
+            
      ,P.horaPedido AS HORA_PEDIDO
+     
      FROM bddelilahresto.pedidos P
-     JOIN bddelilahresto.usuarios U on P.idUsuario =  U.id
-     JOIN bddelilahresto.mediosdepago TP on p.idMedioDePago = TP.id
-     JOIN bddelilahresto.estadospedido E on p.idEstadoPedido = E.id;`,
+     JOIN bddelilahresto.usuarios U
+          on P.idUsuario =  U.id
+     JOIN bddelilahresto.mediosdepago TP 
+          on p.idMedioDePago = TP.id
+     JOIN bddelilahresto.estadospedido E 
+          on p.idEstadoPedido = E.id;`,
          {type: sequelize.QueryTypes.SELET}  
          ).then(result =>{
              res.send(result);   

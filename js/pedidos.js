@@ -12,8 +12,8 @@ const BuscarPedidoPorId = async (id) => {
 
 const CrearPedidoDetalle = async (detalleOrden) => {
     //console.log(detalleOrden);
-    return await sequelize.query(`INSERT INTO bddelilahresto.detalles_pedidos (id_producto,id_pedido)
-    VALUES ("${detalleOrden.id_producto}","${detalleOrden.id_pedido}");`,
+    return await sequelize.query(`INSERT INTO bddelilahresto.detalles_pedidos (id_producto,id_pedido,Cantidad)
+    VALUES ("${detalleOrden.id_producto}","${detalleOrden.id_pedido}", "${detalleOrden.Cantidad}");`,
     {
         type: sequelize.QueryTypes.INSERT
     });
@@ -41,7 +41,7 @@ const validarProductosDetalles = async (productos) => {
                 //Especificar id y error del producto
                 return{
                     id: prod,
-                    mensaje: "No id del producto existe, consulta los productos disponibles",
+                    mensaje: "El producto no existe, consulta los productos disponibles",
                 }
             });
         return { error: errorDetalle };
@@ -52,7 +52,8 @@ const crearDetalleOrden = async (id_pedido, productos) =>{
     for (const prod of productos){
         const detalleOrden={
             id_pedido,
-            id_producto: prod.id_producto
+            id_producto: prod.id_producto,           
+            Cantidad: prod.Cantidad
         };
         console.log(detalleOrden);
         await CrearPedidoDetalle(detalleOrden);

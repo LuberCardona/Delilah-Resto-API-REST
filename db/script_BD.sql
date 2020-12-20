@@ -190,11 +190,10 @@ INSERT INTO `bddelilahresto`.`pedidos`
     "1"
   );
 
-CREATE TABLE `bddelilahresto`.`detalles_pedidos` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `id_producto` INT NOT NULL,
+CREATE TABLE `bddelilahresto`.`detalles_pedidos` (  
   `id_pedido` INT NOT NULL,
-  PRIMARY KEY (`id`),
+  `id_producto` INT NOT NULL,
+  `Cantidad` INT NOT NULL,
   INDEX `fk_detalle_pedido_idx` (`id_pedido` ASC) VISIBLE,
   INDEX `fk_detalle_producto_idx` (`id_producto` ASC) VISIBLE,
   CONSTRAINT `fk_detalle_pedido`
@@ -208,6 +207,6 @@ CREATE TABLE `bddelilahresto`.`detalles_pedidos` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
-INSERT INTO `bddelilahresto`.`detalles_pedidos`
+/*INSERT INTO `bddelilahresto`.`detalles_pedidos`
 (`id_producto`,`id_pedido`)
-VALUES(1,1)
+VALUES(1,1)*/

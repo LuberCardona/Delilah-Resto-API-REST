@@ -367,7 +367,10 @@ definitions:
       properties:
         id_producto:
           type: "integer"
-          format: "int64"      
+          format: "int64"
+        Cantidad:
+          type: "integer"
+          format: "int64"     
   Pedido:
     type: "object"
     properties: 
@@ -380,7 +383,7 @@ definitions:
       productos:
         type: "array"
         xml:
-          name: "product"
+          name: "producto"
           wrapped: true
         items:
           $ref: '#/definitions/Detalleproductos'   
